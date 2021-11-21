@@ -1,0 +1,3 @@
+### GET request with a header
+GET http://localhost:8080/developers/Mini
+Accept: application/json
