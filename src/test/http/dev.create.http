@@ -7,10 +7,10 @@ POST http://localhost:8080/create-developer
 Content-Type: application/json
 
 {
-  "developerLevel": "JUNIOR",
+  "developerLevel": "SENIOR",
   "developerSkillType": "BACK_END",
-  "experienceYears": 2,
-  "memberId": "Mini",
-  "name": "KsS",
-  "age": 23
+  "experienceYears": 12,
+  "memberId": "Micky",
+  "name": "mouse",
+  "age": 30
 }

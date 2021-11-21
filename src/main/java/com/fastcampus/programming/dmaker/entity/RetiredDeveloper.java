@@ -1,6 +1,5 @@
 package com.fastcampus.programming.dmaker.entity;
 
-import com.fastcampus.programming.dmaker.code.StatusCode;
 import com.fastcampus.programming.dmaker.type.DeveloperLevel;
 import com.fastcampus.programming.dmaker.type.DeveloperSkillType;
 import lombok.*;
@@ -19,24 +18,14 @@ import java.time.LocalDateTime;
 //entity 사용 위해 Entity, EntityListener annotation 필요!
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Developer {
+public class RetiredDeveloper {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    @Enumerated(EnumType.STRING)
-    private DeveloperLevel developerLevel;
-
-    @Enumerated
-    private DeveloperSkillType developerSkillType;
-
-    private Integer experienceYears;
     private String memberId;
     private String name;
-    private Integer age;
 
-    @Enumerated(EnumType.STRING)
-    private StatusCode statusCode;
 
     @CreatedDate
     private LocalDateTime createdAt;

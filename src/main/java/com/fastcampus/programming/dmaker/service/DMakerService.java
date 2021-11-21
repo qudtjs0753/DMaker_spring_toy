@@ -1,25 +1,21 @@
 package com.fastcampus.programming.dmaker.service;
 
+import com.fastcampus.programming.dmaker.code.StatusCode;
 import com.fastcampus.programming.dmaker.dto.CreateDeveloper;
 import com.fastcampus.programming.dmaker.dto.DeveloperDetailDto;
 import com.fastcampus.programming.dmaker.dto.DeveloperDto;
 import com.fastcampus.programming.dmaker.dto.EditDeveloper;
 import com.fastcampus.programming.dmaker.entity.Developer;
-import com.fastcampus.programming.dmaker.exception.DMakerErrorCode;
+import com.fastcampus.programming.dmaker.entity.RetiredDeveloper;
 import com.fastcampus.programming.dmaker.exception.DMakerException;
 import com.fastcampus.programming.dmaker.repository.DeveloperRepository;
+import com.fastcampus.programming.dmaker.repository.RetiredDeveloperRepository;
 import com.fastcampus.programming.dmaker.type.DeveloperLevel;
-import com.fastcampus.programming.dmaker.type.DeveloperSkillType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.transaction.Transactional;
-import javax.validation.Valid;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.fastcampus.programming.dmaker.exception.DMakerErrorCode.*;
@@ -36,7 +32,7 @@ public class DMakerService {
     //DeveloperRepository를 사용 가능
     //근데 이 constructor를 또 lombok annotation 통해 자동생성.
     private final DeveloperRepository developerRepository;
-
+    private final RetiredDeveloperRepository retiredDeveloperRepository;
     @Transactional //AOP!!
     //여기 request에 @Valid 필요한지 안필요한지 생각하기.
     public CreateDeveloper.Response createDeveloper(CreateDeveloper.Request request){
@@ -48,6 +44,7 @@ public class DMakerService {
                     .developerSkillType(request.getDeveloperSkillType())
                     .experienceYears(request.getExperienceYears())
                     .memberId(request.getMemberId())
+                    .statusCode(StatusCode.EMPLOYED)
                     .name(request.getName())
                     .age(request.getAge())
                     .build();
@@ -80,8 +77,8 @@ public class DMakerService {
 
     //이거 어떻게 동작하는건지?
     //:: 표시 잘 모르겠음.
-    public List<DeveloperDto> getAllDevelopers() {
-        return developerRepository.findAll()
+    public List<DeveloperDto> getAllEmployedDevelopers() {
+        return developerRepository.findDevelopersByStatusCodeEquals(StatusCode.EMPLOYED)
                 .stream().map(DeveloperDto::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -133,6 +130,26 @@ public class DMakerService {
         if(developerLevel == DeveloperLevel.JUNIOR && experienceYears > 4){
             throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
         }
+    }
+
+    @Transactional //JPA 더티체킹도 이 annotation으로 적용됨.
+    public DeveloperDetailDto deleteDeveloper(String memberId) {
+        //1. EMPLOYED -> RETIRED
+        //이렇게만 해도 Transaction이 있기 때문에 이 메소드가 종료되면 자동으로 retired로 커밋
+        //즉 하나의 작업 예약한 것.
+        Developer developer = developerRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
+        developer.setStatusCode(StatusCode.RETIRED);
+        //만약 이 시점에서 throw exception 발생하면? -> rollback 일어남.
+        //즉, 이전에 했던 setStatuscode 다 취소. if throw -> rollback.
+
+        //2. save into RetiredDeveloper
+        RetiredDeveloper retiredDeveloper = RetiredDeveloper.builder()
+                .memberId(memberId)
+                .name(developer.getName())
+                .build();
+        retiredDeveloperRepository.save(retiredDeveloper);
+        return DeveloperDetailDto.fromEntity(developer);
     }
 }
 

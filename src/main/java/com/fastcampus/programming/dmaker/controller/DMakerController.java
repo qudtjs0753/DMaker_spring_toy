@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 
 //Spring framework의 annotation
@@ -34,7 +33,7 @@ public class DMakerController {
     public List<DeveloperDto> getAllDevelopers(){
         log.info("GET /developers HTTP/1.1");
 
-        return dMakerService.getAllDevelopers();
+        return dMakerService.getAllEmployedDevelopers();
     }
 
     @GetMapping("/developers/{memberId}")
@@ -67,5 +66,12 @@ public class DMakerController {
         log.info("PUT HTTP/1.1");
 
         return dMakerService.editDeveloper(memberId, request);
+    }
+
+    @DeleteMapping("/developer/{memberId}")
+    public DeveloperDetailDto deleteDeveloper(
+        @PathVariable String memberId
+    ){
+        return dMakerService.deleteDeveloper(memberId);
     }
 }
