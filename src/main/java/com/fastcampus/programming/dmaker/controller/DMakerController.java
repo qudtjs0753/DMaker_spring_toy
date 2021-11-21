@@ -39,14 +39,12 @@ public class DMakerController {
     //@Valid : request body 값을 request 변수에 담아줄 때 validation
     //문제 있으면 methodargumentnotvalid exception처리함.
     @PostMapping("/create-developer")
-    public List<String> createDevelopers(
+    public CreateDeveloper.Response createDevelopers(
            @Valid @RequestBody CreateDeveloper.Request request
     ){
         //요거 찍고 싶을때 Request class에 Tostring 박아주면 편리
         log.info("request : {}", request);
 
-        dMakerService.createDeveloper(request);
-
-        return List.of("Olaf");
+        return dMakerService.createDeveloper(request);
     }
 }

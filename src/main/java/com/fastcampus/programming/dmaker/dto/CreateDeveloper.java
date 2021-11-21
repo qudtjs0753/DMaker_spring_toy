@@ -1,5 +1,6 @@
 package com.fastcampus.programming.dmaker.dto;
 
+import com.fastcampus.programming.dmaker.entity.Developer;
 import com.fastcampus.programming.dmaker.type.DeveloperLevel;
 import com.fastcampus.programming.dmaker.type.DeveloperSkillType;
 
@@ -31,6 +32,7 @@ public class CreateDeveloper {
         @NotNull
         @Size(min = 3, max = 50, message="memberId size must be length in 3~50")
         private String memberId;
+
         @NotNull
         @Size(min = 3, max = 20, message="name size must be length in 3~20")
         private String name;
@@ -47,9 +49,17 @@ public class CreateDeveloper {
         private DeveloperLevel developerLevel;
         private DeveloperSkillType developerSkillType;
         private Integer experienceYears;
-
         private String memberId;
 
+        //developer entity를 받아서 바로 response를 만들어주고 return.
+        public static Response fromEntity(Developer developer){
+            return Response.builder()
+                    .developerLevel(developer.getDeveloperLevel())
+                    .developerSkillType(developer.getDeveloperSkillType())
+                    .experienceYears(developer.getExperienceYears())
+                    .memberId(developer.getMemberId())
+                    .build();
+        }
 
     }
 }

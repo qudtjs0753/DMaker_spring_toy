@@ -1,0 +1,16 @@
+### Send POST request with json body
+//Example에서 가져온 기본적인 형태
+//content-type이랑 body랑 빈줄로 안떼어놓으면 이상하게뜸;
+//안의 값들 바꾸면서 설정했던 exception이 잘 되는지 체크.
+//이거 인텔리제이 유료버전만 지원하는 디버깅기능입니다..
+POST http://localhost:8080/create-developer
+Content-Type: application/json
+
+{
+  "developerLevel": "JUNIOR",
+  "developerSkillType": "FRONT_END",
+  "experienceYears": 2,
+  "memberId": "Mickey",
+  "name": "KBS",
+  "age": 23
+}

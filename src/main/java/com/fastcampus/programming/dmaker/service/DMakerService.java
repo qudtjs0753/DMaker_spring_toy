@@ -35,18 +35,25 @@ public class DMakerService {
 
     @Transactional //AOP!!
     //여기 request에 @Valid 필요한지 안필요한지 생각하기.
-    public void createDeveloper(CreateDeveloper.Request request){
+    public CreateDeveloper.Response createDeveloper(CreateDeveloper.Request request){
             validateCreateDeveloperRequest(request);
             //builder를 통해 응집성 있게 각 데이터를 세팅해줌.
             //business logic start
             Developer developer = Developer.builder()
-                    .developerLevel(DeveloperLevel.JUNIOR)
-                    .developerSkillType(DeveloperSkillType.FRONT_END)
-                    .experienceYears(2)
-                    .name("Olaf")
-                    .age(5)
+                    .developerLevel(request.getDeveloperLevel())
+                    .developerSkillType(request.getDeveloperSkillType())
+                    .experienceYears(request.getExperienceYears())
+                    .memberId(request.getMemberId())
+                    .name(request.getName())
+                    .age(request.getAge())
                     .build();
             developerRepository.save(developer);
+            //response DTO를 만들때는 결국 developer entity를 생성하고
+            //바로 그 entity를 통해 만들게 된다.
+            //이로 인해 developer entity와 강한 결합을 하게 됨.
+            //response class에 fronEntity를 만들어서 이걸 처리해줌으로서
+            //결합을 약화시켜줌.
+            return CreateDeveloper.Response.fromEntity(developer);
     }
 
     private void validateCreateDeveloperRequest(CreateDeveloper.Request request) {
