@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 //entity 사용 위해 Entity, EntityListener annotation 필요!
 @Entity
+@ToString
 @EntityListeners(AuditingEntityListener.class)
 public class Developer {
     @Id

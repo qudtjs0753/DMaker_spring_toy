@@ -1,14 +1,14 @@
 package com.fastcampus.programming.dmaker.controller;
 
-import com.fastcampus.programming.dmaker.dto.*;
-import com.fastcampus.programming.dmaker.exception.DMakerException;
+import com.fastcampus.programming.dmaker.dto.CreateDeveloper;
+import com.fastcampus.programming.dmaker.dto.DeveloperDetailDto;
+import com.fastcampus.programming.dmaker.dto.DeveloperDto;
+import com.fastcampus.programming.dmaker.dto.EditDeveloper;
 import com.fastcampus.programming.dmaker.service.DMakerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -20,7 +20,7 @@ import java.util.List;
 /** DMakerController(Bean)  DMakerService(Bean)  DMakerRepository(Bean)
  ===================================================================
 controller가 service를 가져다쓰고싶다면? DMakerService에서 했던것 처럼
-constructor를 통한 주입해주면 됨*/
+constructor를 통한 주입을 해주면 됨*/
 @Slf4j
 @RestController
 @RequiredArgsConstructor
