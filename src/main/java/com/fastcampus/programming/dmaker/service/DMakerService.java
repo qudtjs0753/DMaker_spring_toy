@@ -62,8 +62,10 @@ public class DMakerService {
         //business에서 예외적인 상황에서는
         //custom exception을 사용하는게 좋습니다.
         //if else로 막 담다보면 한도끝도 없이 코드의 복잡도가 올라간다. 특히 재활용성이 떨어진다.
-        validateDeveloperLevel(request.getDeveloperLevel(),
-                request.getExperienceYears());
+        validateDeveloperLevel(
+                request.getDeveloperLevel(),
+                request.getExperienceYears()
+        );
 
         //이미 중복되는 developer가 있으면 throw.
         developerRepository.findByMemberId(request.getMemberId())
