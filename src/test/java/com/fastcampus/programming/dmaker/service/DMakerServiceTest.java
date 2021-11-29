@@ -7,7 +7,8 @@ import com.fastcampus.programming.dmaker.entity.Developer;
 import com.fastcampus.programming.dmaker.exception.DMakerErrorCode;
 import com.fastcampus.programming.dmaker.exception.DMakerException;
 import com.fastcampus.programming.dmaker.repository.DeveloperRepository;
-import com.fastcampus.programming.dmaker.repository.RetiredDeveloperRepository;
+import com.fastcampus.programming.dmaker.type.DeveloperLevel;
+import com.fastcampus.programming.dmaker.type.DeveloperSkillType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,10 +18,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static com.fastcampus.programming.dmaker.type.DeveloperLevel.SENIOR;
+import static com.fastcampus.programming.dmaker.constant.DMakerConstant.MAX_JUNIOR_EXPERIENCE_YEARS;
+import static com.fastcampus.programming.dmaker.constant.DMakerConstant.MIN_SENIOR_EXPERIENCE_YEARS;
+import static com.fastcampus.programming.dmaker.type.DeveloperLevel.*;
 import static com.fastcampus.programming.dmaker.type.DeveloperSkillType.FRONT_END;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -37,29 +41,34 @@ class DMakerServiceTest {
     //InjectMocks 했을 때 얘네 2개 자동으로 등록시켜준다.
     @Mock
     private DeveloperRepository developerRepository;
-    @Mock
-    private RetiredDeveloperRepository retiredDeveloperRepository;
 
     @InjectMocks//가짜를 inject 시켜주겠다고 하는 것.
     private DMakerService dMakerService;
 
-    private Developer defaultDeveloper = Developer.builder()
+    private final Developer defaultDeveloper = Developer.builder()
             .developerLevel(SENIOR)
             .developerSkillType(FRONT_END)
             .experienceYears(12)
             .statusCode(StatusCode.EMPLOYED)
             .name("name")
-            .age(12)
-            .build();
-
-    private CreateDeveloper.Request defaultCreateRequest = CreateDeveloper.Request.builder()
-            .developerLevel(SENIOR)
-            .developerSkillType(FRONT_END)
-            .experienceYears(12)
-            .memberId("memberId")
-            .name("name")
             .age(32)
             .build();
+
+    private CreateDeveloper.Request getCreateRequest(
+            DeveloperLevel developerLevel,
+            DeveloperSkillType developerSkillType,
+            Integer experienceYears
+    ){
+       return CreateDeveloper.Request.builder()
+                .developerLevel(developerLevel)
+                .developerSkillType(developerSkillType)
+                .experienceYears(experienceYears)
+                .memberId("memberId")
+                .name("name")
+                .age(32)
+                .build();
+    }
+
     @Test
     public void testSomething(){
         //mock들의 동작을 정의
@@ -80,16 +89,18 @@ class DMakerServiceTest {
     @Test
     void createDeveloperTest_success() {
         //given
-
-        //주어졌을 때 return 없어야 중복되는게 없으니까 empty값을 기대
         given(developerRepository.findByMemberId(anyString()))
                 .willReturn(Optional.empty());
+
+        given(developerRepository.save(any()))
+                .willReturn(defaultDeveloper);
+
         //저장한 애를 capture
         ArgumentCaptor<Developer> captor =
                 ArgumentCaptor.forClass(Developer.class);
 
         //when
-        CreateDeveloper.Response developer = dMakerService.createDeveloper(defaultCreateRequest);
+        dMakerService.createDeveloper(getCreateRequest(SENIOR, FRONT_END, MIN_SENIOR_EXPERIENCE_YEARS));
 
         //then
         //times: mockito에서 verify를 해줌.
@@ -100,7 +111,37 @@ class DMakerServiceTest {
         Developer saveDeveloper = captor.getValue();
         assertEquals(SENIOR, saveDeveloper.getDeveloperLevel());
         assertEquals(FRONT_END, saveDeveloper.getDeveloperSkillType());
-        assertEquals(12, saveDeveloper.getExperienceYears());
+        assertEquals(10, saveDeveloper.getExperienceYears());
+    }
+
+    @Test
+    void createDeveloperTest_fail_unmatched_level() {
+        //given
+        //when
+        //then
+        DMakerException dMakerException = assertThrows(DMakerException.class,
+                () -> dMakerService.createDeveloper(
+                        getCreateRequest(JUNIOR, FRONT_END, MAX_JUNIOR_EXPERIENCE_YEARS+1)
+                )
+        );
+        assertEquals(DMakerErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATCHED,
+                dMakerException.getDMakerErrorCode());
+        dMakerException = assertThrows(DMakerException.class,
+                () -> dMakerService.createDeveloper(
+                        getCreateRequest(JUNGNIOR, FRONT_END, MIN_SENIOR_EXPERIENCE_YEARS+1)
+                )
+        );
+        assertEquals(DMakerErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATCHED,
+                dMakerException.getDMakerErrorCode()
+        );
+        dMakerException = assertThrows(DMakerException.class,
+                () -> dMakerService.createDeveloper(
+                        getCreateRequest(SENIOR, FRONT_END, MIN_SENIOR_EXPERIENCE_YEARS-1)
+                )
+        );
+        assertEquals(DMakerErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATCHED,
+                dMakerException.getDMakerErrorCode()
+        );
     }
     @Test
     void createDeveloperTest_failed_with_duplicated() {
@@ -117,11 +158,11 @@ class DMakerServiceTest {
         //exception 날아올 것으로 예상되는 class와
         //해당 exception을 던질 동작을 받음.
         DMakerException dMakerException = assertThrows(DMakerException.class,
-                () -> dMakerService.createDeveloper(defaultCreateRequest)
+                () -> dMakerService.createDeveloper(
+                        getCreateRequest(SENIOR, FRONT_END, MIN_SENIOR_EXPERIENCE_YEARS+2)
+                )
         );
-
         assertEquals(DMakerErrorCode.DUPLICATED_MEMBER_ID, dMakerException.getDMakerErrorCode());
-
     }
 
 }

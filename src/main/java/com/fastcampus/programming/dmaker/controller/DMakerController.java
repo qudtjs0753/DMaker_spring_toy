@@ -38,7 +38,7 @@ public class DMakerController {
 
     @GetMapping("/developers/{memberId}")
     public DeveloperDetailDto getDeveloperDetail(
-            @PathVariable String memberId
+            @PathVariable final String memberId
     ){
         log.info("GET /developers HTTP/1.1");
 
@@ -50,7 +50,7 @@ public class DMakerController {
     //문제 있으면 methodargumentnotvalid exception처리함.
     @PostMapping("/create-developer")
     public CreateDeveloper.Response createDevelopers(
-           @Valid @RequestBody CreateDeveloper.Request request
+           @Valid @RequestBody final CreateDeveloper.Request request
     ){
         //요거 찍고 싶을때 Request class에 Tostring 박아주면 편리
         log.info("request : {}", request);
@@ -60,8 +60,8 @@ public class DMakerController {
 
     @PutMapping("/developer/{memberId}")
     public DeveloperDetailDto editDeveloper(
-            @PathVariable String memberId,
-            @Valid @RequestBody EditDeveloper.Request request
+            @PathVariable final String memberId,
+            @Valid @RequestBody final EditDeveloper.Request request
     ){
         log.info("PUT HTTP/1.1");
 
@@ -70,7 +70,7 @@ public class DMakerController {
 
     @DeleteMapping("/developer/{memberId}")
     public DeveloperDetailDto deleteDeveloper(
-        @PathVariable String memberId
+        @PathVariable final String memberId
     ){
         return dMakerService.deleteDeveloper(memberId);
     }

@@ -52,7 +52,7 @@ public class CreateDeveloper {
         private String memberId;
 
         //developer entity를 받아서 바로 response를 만들어주고 return.
-        public static Response fromEntity(Developer developer){
+        public static Response fromEntity(@NonNull Developer developer){
             return Response.builder()
                     .developerLevel(developer.getDeveloperLevel())
                     .developerSkillType(developer.getDeveloperSkillType())
